@@ -1,0 +1,27 @@
+#include<stdio.h>
+#include<omp.h>
+int fib(int n)
+{
+	int i,j;
+	if(n<2) return n;
+	else {
+		#pragma omp task shared(i) firstprivate(n)
+		i = fib(n-1);
+		#pragma omp task shared(j) firstprivate(n)
+		j = fib(n-2);
+		#pragma omp taskwait
+		return i+j;
+	}
+}
+void main()
+{
+	int n;
+    printf("Enter n");
+    scanf("%d",&n);	
+	#pragma omp parallel num_threads(4) shared(n) 
+    for(int i=0;i<=n;i++)
+	{
+		#pragma omp single
+		printf("fib(%d) = %d   %d \n",i,fib(i),omp_get_thread_num());
+	}	
+}
